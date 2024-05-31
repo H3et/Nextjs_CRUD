@@ -1,6 +1,6 @@
 import React from "react";
 
-const DeleteProduct = () => {
+const DeleteProduct: React.FC = () => {
   return <div>DeleteProduct</div>;
 };
 

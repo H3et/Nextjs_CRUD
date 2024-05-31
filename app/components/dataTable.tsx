@@ -1,8 +1,20 @@
 import Link from "next/link";
 import React from "react";
 
-const DataTable = ({ cols = [], rows = [] }) => {
-  const handlerDelete = async (id) => {
+interface RowItem {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+}
+
+interface DataTableProps {
+  cols: string[];
+  rows: RowItem[];
+}
+
+const DataTable: React.FC<DataTableProps> = ({ cols = [], rows = [] }) => {
+  const handlerDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete")) {
       try {
         const res = await fetch(`../api/${id}`, {
@@ -39,16 +51,10 @@ const DataTable = ({ cols = [], rows = [] }) => {
             <td>{tr?.price}</td>
             <td>
               <div className="d-flex gap-1">
-                <Link
-                  className="btn btn-info btn-sm"
-                  href={`../view/${tr?._id}`}
-                >
+                <Link className="btn btn-info btn-sm" href={`../view/${tr?._id}`}>
                   View
                 </Link>
-                <Link
-                  className="btn btn-warning btn-sm"
-                  href={`../edit/${tr?._id}`}
-                >
+                <Link className="btn btn-warning btn-sm" href={`../edit/${tr?._id}`}>
                   Edit
                 </Link>
                 <button

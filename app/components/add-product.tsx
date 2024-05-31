@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import BreadCrumb from "@/app/components/bread-crumb";
-import { useForm } from "react-hook-form";
+import BreadCrumb from "./bread-crumb";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";
 
 const breadCrumb = [
@@ -9,16 +9,22 @@ const breadCrumb = [
   { title: "Add New Product", url: "../add/" },
 ];
 
-const AddProduct = () => {
+interface FormData {
+  title: string;
+  description: string;
+  price: number;
+}
+
+const AddProduct: React.FC = () => {
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<FormData>();
 
-  const onSubmit = async (data) => {
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
       const res = await fetch("../api", {
         method: "POST",
@@ -51,27 +57,34 @@ const AddProduct = () => {
                   Title
                 </label>
                 <input
+                  id="title"
                   className="form-control"
                   {...register("title", { required: true })}
                 />
+                {errors.title && <p className="text-danger">Title is required</p>}
               </div>
               <div className="mb-3">
                 <label htmlFor="description" className="form-label">
                   Description
                 </label>
                 <textarea
+                  id="description"
                   className="form-control"
                   {...register("description", { required: true })}
                 ></textarea>
+                {errors.description && <p className="text-danger">Description is required</p>}
               </div>
               <div className="mb-3">
                 <label htmlFor="price" className="form-label">
                   Price
                 </label>
                 <input
+                  id="price"
+                  type="number"
                   className="form-control"
-                  {...register("price", { required: true })}
+                  {...register("price", { required: true, valueAsNumber: true })}
                 />
+                {errors.price && <p className="text-danger">Price is required</p>}
               </div>
               <div className="mb-3 text-end">
                 <input type="submit" className="btn btn-primary" />

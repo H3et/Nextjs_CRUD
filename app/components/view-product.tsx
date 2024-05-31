@@ -1,30 +1,40 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import BreadCrumb from "@/app/components/bread-crumb";
+import React from "react";
+import BreadCrumb from "./bread-crumb";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 
 const breadCrumb = [
   { title: "Home", url: "../" },
   { title: "View Product", url: "../view/" },
 ];
 
-const ViewProduct = ({ id }) => {
-  const { register } = useForm({
+interface ViewProductProps {
+  id: string;
+}
+
+interface Product {
+  title: string;
+  description: string;
+  price: number;
+}
+
+const ViewProduct: React.FC<ViewProductProps> = ({ id }) => {
+  const { register } = useForm<Product>({
     defaultValues: async () => {
-      const { product } = await getProduct(id);
-      return product;
+      const product = await getProduct(id);
+      return product || {};
     },
   });
 
-  const getProduct = async (id) => {
+  const getProduct = async (id: string): Promise<Product | undefined> => {
     try {
       const res = await fetch(`../api/${id}`);
       if (!res.ok) {
         throw new Error("Failed to get product");
       }
 
-      return await res.json();
+      const { product } = await res.json();
+      return product;
     } catch (error) {
       alert("Failed to get product");
     }
@@ -44,9 +54,7 @@ const ViewProduct = ({ id }) => {
                 </label>
                 <input
                   className="form-control"
-                  {...register("title", {
-                    disabled: true,
-                  })}
+                  {...register("title", { disabled: true })}
                 />
               </div>
               <div className="mb-3">

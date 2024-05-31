@@ -3,7 +3,7 @@ import React from "react";
 import Link from "next/link";
 import AllProducts from "./components/all-products";
 
-const Home = () => {
+const Home: React.FC = () => {
   return (
     <div>
       <div className="d-flex mb-2">

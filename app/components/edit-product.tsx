@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import BreadCrumb from "@/app/components/bread-crumb";
-import { useForm } from "react-hook-form";
+import React from "react";
+import BreadCrumb from "./bread-crumb";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";
 
 const breadCrumb = [
@@ -9,20 +9,32 @@ const breadCrumb = [
   { title: "Edit Product", url: "../edit/" },
 ];
 
-const EditProduct = ({ id }) => {
+interface EditProductProps {
+  id: string;
+}
+
+interface Product {
+  title: string;
+  description: string;
+  price: number;
+}
+
+const EditProduct: React.FC<EditProductProps> = ({ id }) => {
   const router = useRouter();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+    reset,
+  } = useForm<Product>({
     defaultValues: async () => {
-      const { product } = await getProduct(id);
-      return product;
+      const product = await getProduct(id);
+      return product || {};
     },
   });
 
-  const onSubmit = async (data) => {
+  const onSubmit: SubmitHandler<Product> = async (data) => {
     try {
       const res = await fetch(`../api/${id}/`, {
         method: "POST",
@@ -42,18 +54,26 @@ const EditProduct = ({ id }) => {
     }
   };
 
-  const getProduct = async (id) => {
+  const getProduct = async (id: string): Promise<Product | undefined> => {
     try {
       const res = await fetch(`../api/${id}`);
       if (!res.ok) {
         throw new Error("Failed to get product");
       }
 
-      return await res.json();
+      const { product } = await res.json();
+      return product;
     } catch (error) {
       alert("Failed to get product");
     }
   };
+
+  React.useEffect(() => {
+    (async () => {
+      const product = await getProduct(id);
+      if (product) reset(product);
+    })();
+  }, [id, reset]);
 
   return (
     <div>
@@ -69,9 +89,7 @@ const EditProduct = ({ id }) => {
                 </label>
                 <input
                   className="form-control"
-                  {...register("title", {
-                    required: true,
-                  })}
+                  {...register("title", { required: true })}
                 />
               </div>
               <div className="mb-3">
@@ -95,8 +113,7 @@ const EditProduct = ({ id }) => {
               <div className="mb-3 text-end">
                 <input type="submit" className="btn btn-primary" />
               </div>
-
-              {errors.exampleRequired && <span>This field is required</span>}
+              {errors.title && <span>This field is required</span>}
             </form>
           </div>
         </div>
